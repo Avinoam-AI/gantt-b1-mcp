@@ -49,10 +49,10 @@ export function stageStatus(s: B1Stage): StageStatus {
 }
 
 export const STATUS_COLORS: Record<StageStatus, string> = {
-  'completed':   '#32B81D',
-  'in-progress': '#0070F2',
-  'at-risk':     '#FFA500',
-  'not-started': '#8892B8',
+  'completed':   '#5c9e6f',
+  'in-progress': '#5a7fb5',
+  'at-risk':     '#cf9a52',
+  'not-started': '#8b93a7',
 }
 
 export const STATUS_LABELS: Record<StageStatus, string> = {

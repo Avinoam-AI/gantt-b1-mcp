@@ -8,11 +8,11 @@
   --text:        #1d2d3e;
   --text2:       #354a5e;
   --muted:       #6a7383;
-  --accent:      #0070f2;
-  --accent-bg:   #e8f0fe;
-  --warn:        #ffa500;
-  --danger:      #ef4444;
-  --success:     #32b81d;
+  --accent:      #4f7cb0;
+  --accent-bg:   #eaf0f8;
+  --warn:        #cf9a52;
+  --danger:      #cf6a6a;
+  --success:     #5c9e6f;
   --row-h:       46px;
   --bar-h:       28px;
   --bar-top:     9px;
@@ -24,30 +24,30 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --surface:  #1a1d27;
-    --surface2: #20233a;
-    --surface3: #262944;
-    --border:   #2e3148;
-    --border2:  #252840;
-    --text:     #e2e8f0;
-    --text2:    #b0b8c8;
-    --muted:    #8892b0;
-    --accent:   #4f6ef7;
-    --accent-bg:#1a2050;
+    --surface:  #1b1e24;
+    --surface2: #22262e;
+    --surface3: #2a2f38;
+    --border:   #343a44;
+    --border2:  #2a2f38;
+    --text:     #e2e6ec;
+    --text2:    #adb5c0;
+    --muted:    #7e8794;
+    --accent:   #7ba0cf;
+    --accent-bg:#26303f;
   }
 }
 
 [data-theme="dark"] {
-  --surface:  #1a1d27;
-  --surface2: #20233a;
-  --surface3: #262944;
-  --border:   #2e3148;
-  --border2:  #252840;
-  --text:     #e2e8f0;
-  --text2:    #b0b8c8;
-  --muted:    #8892b0;
-  --accent:   #4f6ef7;
-  --accent-bg:#1a2050;
+  --surface:  #1b1e24;
+  --surface2: #22262e;
+  --surface3: #2a2f38;
+  --border:   #343a44;
+  --border2:  #2a2f38;
+  --text:     #e2e6ec;
+  --text2:    #adb5c0;
+  --muted:    #7e8794;
+  --accent:   #7ba0cf;
+  --accent-bg:#26303f;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -503,8 +503,8 @@ body {
   border-radius: 50%;
   z-index: 4;
 }
-.gantt-bar__issue { right: 20px; background: #ef4444; }
-.gantt-bar__fin   { right: 10px; background: #22c55e; }
+.gantt-bar__issue { right: 20px; background: var(--danger); }
+.gantt-bar__fin   { right: 10px; background: var(--success); }
 
 /* ── Tooltip ─────────────────────────────────────────────────────────────── */
 .gantt-tooltip {
@@ -652,7 +652,7 @@ body {
 .stage-editor__issue-prio {
   font-size: 10px;
   font-weight: 700;
-  background: #ef4444;
+  background: var(--danger);
   color: #fff;
   padding: 1px 5px;
   border-radius: 3px;
