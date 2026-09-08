@@ -6,6 +6,7 @@ import { GanttChart } from './components/GanttChart'
 import { IssueList } from './components/IssueList'
 import { ProjectPicker } from './components/ProjectPicker'
 import { StageEditor } from './components/StageEditor'
+import { DEMO_MODE } from './api/client'
 import type { B1Project } from './types/b1'
 
 function fmtDate(s: string) {
@@ -112,6 +113,12 @@ export default function App() {
         logo={<img src="https://www.sap.com/content/dam/application/shared/logos/sap-logo-svg.svg" alt="SAP" height={32} />}
       />
 
+      {DEMO_MODE && (
+        <div className="save-bar save-bar--info" style={{ justifyContent: 'center' }}>
+          <span>Demo mode — sample data only. All edits are local to this session and not saved to SAP Business One.</span>
+        </div>
+      )}
+
       {/* App toolbar */}
       <div className="app__toolbar">
         <span className="app__toolbar-label">Project</span>
@@ -142,7 +149,7 @@ export default function App() {
         <div className="save-bar">
           <span>Unsaved changes</span>
           <Button design="Emphasized" onClick={save} disabled={saving}>
-            {saving ? 'Saving…' : 'Save to B1'}
+            {saving ? 'Saving…' : DEMO_MODE ? 'Save (Demo)' : 'Save to B1'}
           </Button>
         </div>
       )}
