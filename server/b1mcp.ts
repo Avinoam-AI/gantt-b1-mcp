@@ -60,7 +60,7 @@ async function postMcp<T>(body: JsonRpcRequest): Promise<{ result: T; headers: H
     throw new Error('No data in SSE response')
   }
 
-  const json: JsonRpcResponse<T> = await res.json()
+  const json = await res.json() as JsonRpcResponse<T>
   if (json.error) throw new Error(json.error.message)
   return { result: json.result as T, headers: res.headers }
 }
