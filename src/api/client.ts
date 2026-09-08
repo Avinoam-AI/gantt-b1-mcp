@@ -23,9 +23,9 @@ const DEMO_FULL_PROJECTS: Record<number, B1Project> = {
       { lineID: 5, stageID: 5, description: 'Go-Live & Hypercare',      startDate: '2025-08-11', closeDate: '2025-09-30', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 4,    expectedCosts: 8000  },
     ],
     issues: [
-      { lineID: 1, stageID: 3, remarks: 'Custom approval workflow needs rework — original spec was ambiguous', priority: 'High',   closed: false },
-      { lineID: 2, stageID: 3, remarks: 'Tax configuration for EU entities pending sign-off from finance',    priority: 'Medium', closed: false },
-      { lineID: 3, stageID: 2, remarks: 'Integration spec with legacy ERP finalised',                          priority: 'Low',    closed: true  },
+      { lineID: 1, stageID: 3, remarks: 'Custom approval workflow needs rework — original spec was ambiguous', priority: 1, closed: false },
+      { lineID: 2, stageID: 3, remarks: 'Tax configuration for EU entities pending sign-off from finance',    priority: 2, closed: false },
+      { lineID: 3, stageID: 2, remarks: 'Integration spec with legacy ERP finalised',                          priority: 3, closed: true  },
     ],
   },
   2: {
@@ -38,7 +38,7 @@ const DEMO_FULL_PROJECTS: Record<number, B1Project> = {
       { lineID: 5, stageID: 5, description: 'Testing & Rollout',      startDate: '2025-09-22', closeDate: '2025-10-31', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 4,    expectedCosts: 7000  },
     ],
     issues: [
-      { lineID: 1, stageID: 2, remarks: 'Rate-limit policy for external CRM API not yet confirmed by vendor', priority: 'High', closed: false },
+      { lineID: 1, stageID: 2, remarks: 'Rate-limit policy for external CRM API not yet confirmed by vendor', priority: 1, closed: false },
     ],
   },
   3: {
