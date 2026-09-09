@@ -48,10 +48,13 @@ export function stageStatus(s: B1Stage): StageStatus {
   return 'not-started'
 }
 
+// Enriched, CVD-safe status palette (validated: adjacent CVD ΔE ≥ 16, normal-vision ≥ 18).
+// Neutral gray for "not started" is intentional; amber's low surface-contrast is covered by
+// always pairing status color with a text label (the "relief" rule) in charts and legends.
 export const STATUS_COLORS: Record<StageStatus, string> = {
-  'completed':   '#5c9e6f',
-  'in-progress': '#5a7fb5',
-  'at-risk':     '#cf9a52',
+  'completed':   '#2f9e5f',
+  'in-progress': '#3b7fd4',
+  'at-risk':     '#e08a2b',
   'not-started': '#8b93a7',
 }
 
@@ -60,4 +63,12 @@ export const STATUS_LABELS: Record<StageStatus, string> = {
   'in-progress': 'In Progress',
   'at-risk':     'At Risk',
   'not-started': 'Not Started',
+}
+
+// A short glyph paired with each status so meaning never rests on color alone.
+export const STATUS_GLYPHS: Record<StageStatus, string> = {
+  'completed':   '✓',
+  'in-progress': '▸',
+  'at-risk':     '!',
+  'not-started': '○',
 }

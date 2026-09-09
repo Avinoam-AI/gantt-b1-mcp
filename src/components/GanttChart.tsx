@@ -4,7 +4,7 @@ import { STATUS_COLORS, STATUS_LABELS, stageStatus, type StageStatus } from '../
 import { GanttBar } from './GanttBar'
 
 const ROW_H    = 46
-const NAME_W   = 188   // fixed name column width
+const NAME_W   = 200   // fixed name column width (matches .gantt-corner / .gantt-names-col)
 const TODAY    = new Date(); TODAY.setHours(0, 0, 0, 0)
 
 function fmt(d: Date): string { return d.toISOString().slice(0, 10) }
@@ -59,6 +59,22 @@ export function GanttChart({ stages, issues, selectedStageId, onSelectStage, onS
     const next = new Date(gCur.getFullYear(), gCur.getMonth() + 1, 1)
     if (next <= endD) gridLines.push(diffDays(vStart, fmt(next)) * pxDay)
     gCur = next
+  }
+
+  // Weekend shading — merge consecutive Sat/Sun into blocks to keep the DOM light
+  const weekendBlocks: { left: number; width: number }[] = []
+  {
+    let runStart = -1
+    for (let d = 0; d < totalDays; d++) {
+      const day = new Date(vStart + 'T00:00:00'); day.setDate(day.getDate() + d)
+      const isWeekend = day.getDay() === 0 || day.getDay() === 6
+      if (isWeekend && runStart < 0) runStart = d
+      if ((!isWeekend || d === totalDays - 1) && runStart >= 0) {
+        const end = isWeekend ? d + 1 : d
+        weekendBlocks.push({ left: runStart * pxDay, width: (end - runStart) * pxDay })
+        runStart = -1
+      }
+    }
   }
 
   // Dependency arrows
@@ -145,6 +161,11 @@ export function GanttChart({ stages, issues, selectedStageId, onSelectStage, onS
             className="gantt-chart-area"
             style={{ width: totalWidth, height: stages.length * ROW_H }}
           >
+            {/* Weekend shading */}
+            {pxDay >= 16 && weekendBlocks.map((b, i) => (
+              <div key={i} className="gantt-weekend" style={{ left: b.left, width: b.width }} />
+            ))}
+
             {/* Grid lines */}
             {gridLines.map((x, i) => (
               <div key={i} className="gantt-grid-line" style={{ left: x }} />
@@ -171,12 +192,12 @@ export function GanttChart({ stages, issues, selectedStageId, onSelectStage, onS
             {/* Dependency arrows */}
             <svg className="gantt-deps" style={{ width: totalWidth, height: stages.length * ROW_H }}>
               <defs>
-                <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-                  <polygon points="0 0,6 3,0 6" fill="#8892B8" />
+                <marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+                  <polygon points="0 0,6 3,0 6" fill="var(--axis)" />
                 </marker>
               </defs>
               {arrowPaths.map((d, i) => (
-                <path key={i} d={d} stroke="#8892B8" strokeWidth="1.5" fill="none" markerEnd="url(#arr)" />
+                <path key={i} d={d} stroke="var(--axis)" strokeWidth="1.5" fill="none" markerEnd="url(#arr)" />
               ))}
             </svg>
 

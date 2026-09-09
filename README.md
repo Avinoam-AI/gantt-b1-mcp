@@ -1,8 +1,26 @@
 # B1 Project Gantt
 
-An interactive project-management Gantt app for **SAP Business One**, backed by the B1 MCP server. Browse B1 projects, view their stages on a drag/resize Gantt chart, edit stage details, and (where B1 permits) save changes back.
+An interactive project-management app for **SAP Business One**, backed by the B1 MCP server. Browse B1
+projects, view their stages on a drag/resize **Gantt timeline**, drill into a per-project **Analytics &
+Budget** dashboard, edit stage details, and (where B1 permits) save changes back.
 
-**Stack:** React 19 + TypeScript + Vite · `@ui5/webcomponents-react` (SAP Fiori) · Express backend · SAP B1 Service Layer via MCP.
+**Stack:** React 19 + TypeScript + Vite · `@ui5/webcomponents-react` (SAP Horizon, light + dark) · Express
+backend · SAP B1 Service Layer via MCP.
+
+## Highlights
+
+- **Two views, one project header.** Toggle between the **Timeline** (drag/resize Gantt with dependency
+  arrows, weekend shading and a today marker) and an **Analytics** dashboard — a segmented control in the toolbar.
+- **Analytics & Budget dashboard.** KPI stat tiles (total/committed/remaining budget, completion, stages
+  done, open issues), a completion-vs-schedule progress ring, a stage-status donut, a budget-by-stage bar
+  chart with a committed/remaining split, and an "attention needed" list of overdue stages. All metrics are
+  derived purely on the client from the loaded project (`src/lib/analytics.ts`).
+- **Modern SAP / Fiori-plus redesign.** Refreshed design tokens, elevated KPI cards, depth and motion, a
+  polished Gantt, and a coherent **light *and* dark theme** — the SAP components now switch to
+  `sap_horizon_dark` in step with the app (theme is set before first render in `src/main.tsx` to avoid a
+  boot-time light flash; UI5 theme Assets are bundled so dark works offline).
+- **Accessible, validated charts.** Chart colors reuse the CVD-safe stage-status palette; categorical parts
+  always ship a text label + legend, never color alone.
 
 ## Architecture
 
@@ -12,14 +30,20 @@ gantt-b1-mcp/
 │   ├── index.ts     Express API (port 3001): /api/projects, /api/projects/:id (GET, PATCH)
 │   └── b1mcp.ts     MCP Streamable-HTTP client (session init, tool calls, JSON extraction)
 └── src/
-    ├── App.tsx              Shell, toolbar, project header KPIs, save/error bars, theme toggle
-    ├── api/client.ts        Typed fetch wrappers
+    ├── App.tsx              Shell, toolbar, view switcher, project header KPIs, save/error bars, theme toggle
+    ├── api/client.ts        Typed fetch wrappers (+ demo data)
     ├── hooks/               useProjects, useProject (load + local edits + save)
-    ├── types/b1.ts          B1 DTOs, status colors/labels
-    └── components/          ProjectPicker, GanttChart, GanttBar, StageEditor, IssueList
+    ├── lib/                 analytics.ts (project metrics), format.ts (money/date helpers)
+    ├── types/b1.ts          B1 DTOs, status colors/labels/glyphs
+    └── components/
+        ├── GanttChart, GanttBar, StageEditor, IssueList, ProjectPicker
+        ├── AnalyticsView    Budget & schedule dashboard
+        ├── Icon             Inline SVG icon set
+        └── charts/          StatTile, ProgressRing, DonutChart, BarChart
 ```
 
-The frontend talks only to the local Express API (`/api/*`, proxied by Vite). The Express layer translates between our DTOs and B1 Service Layer entities through the MCP tools `b1_read` / `b1_write`.
+The frontend talks only to the local Express API (`/api/*`, proxied by Vite). The Express layer translates
+between our DTOs and B1 Service Layer entities through the MCP tools `b1_read` / `b1_write`.
 
 ## Running
 

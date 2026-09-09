@@ -114,7 +114,11 @@ export function GanttBar({ stage, rowIndex, issues, pxDay, vStart, selected, onS
       <div
         ref={barRef}
         className={'gantt-bar' + (selected ? ' gantt-bar--selected' : '')}
-        style={{ left, width, top, background: color + 'cc' }}
+        style={{
+          left, width, top,
+          background: color,
+          backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,.16), rgba(0,0,0,.12))',
+        }}
         onMouseDown={e => { if (!(e.target as HTMLElement).classList.contains('gantt-bar__rh')) startDrag('move', e) }}
         onClick={() => onSelect(stage.lineID)}
         onMouseEnter={showTip}
@@ -123,8 +127,8 @@ export function GanttBar({ stage, rowIndex, issues, pxDay, vStart, selected, onS
       >
         {/* Left resize handle */}
         <div className="gantt-bar__rh gantt-bar__rh--left" onMouseDown={e => startDrag('resize-left', e)} />
-        {/* Progress fill */}
-        <div className="gantt-bar__progress" style={{ width: stage.percentualCompletness + '%', background: color }} />
+        {/* Progress fill — lighter overlay marks the completed portion */}
+        <div className="gantt-bar__progress" style={{ width: stage.percentualCompletness + '%' }} />
         {/* Label */}
         <span className="gantt-bar__label">{stage.description}</span>
         {/* Issue dot */}

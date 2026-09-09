@@ -1,62 +1,97 @@
 import { Button, ShellBar } from '@ui5/webcomponents-react'
+import { setTheme } from '@ui5/webcomponents-base/dist/config/Theme.js'
 import { useEffect, useState } from 'react'
 import { useProject } from './hooks/useProject'
 import { useProjects } from './hooks/useProjects'
 import { GanttChart } from './components/GanttChart'
+import { AnalyticsView } from './components/AnalyticsView'
 import { IssueList } from './components/IssueList'
 import { ProjectPicker } from './components/ProjectPicker'
 import { StageEditor } from './components/StageEditor'
+import { Icon } from './components/Icon'
+import { ProgressRing } from './components/charts/ProgressRing'
+import { fmtDate, fmtMoneyCompact } from './lib/format'
 import { DEMO_MODE } from './api/client'
 import type { B1Project } from './types/b1'
 
-function fmtDate(s: string) {
-  if (!s) return '—'
-  return new Date(s + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-}
+type View = 'timeline' | 'analytics'
 
 function statusLabel(s: string) {
   return s?.replace('pst_', '') ?? '—'
 }
 
+function statusTone(s: string): { bg: string; fg: string } {
+  if (/finish/i.test(s)) return { bg: 'var(--success-bg)', fg: 'var(--success)' }
+  if (/stop|pause|hold/i.test(s)) return { bg: 'var(--warn-bg)', fg: 'var(--warn)' }
+  return { bg: 'var(--accent-bg)', fg: 'var(--accent)' }
+}
+
 function ProjectHeader({ project }: { project: B1Project }) {
   const open   = project.issues.filter(i => !i.closed).length
   const done   = project.stages.filter(s => s.isFinished).length
+  const budget = project.stages.reduce((sum, s) => sum + (s.expectedCosts || 0), 0)
   const pct    = project.finishedPercent ?? 0
+  const tone   = statusTone(project.projectStatus)
 
   return (
     <div className="proj-header">
-      <div className="proj-header__left">
-        <div className="proj-header__name">{project.projectName}</div>
-        <div className="proj-header__customer">{project.businessPartnerName}</div>
+      <div className="proj-header__top">
+        <div className="proj-header__ring">
+          <ProgressRing value={pct} size={58} stroke={7} centerLabel="" />
+        </div>
+        <div className="proj-header__id">
+          <div className="proj-header__name">{project.projectName}</div>
+          <div className="proj-header__customer">
+            <Icon name="building" size={13} />
+            {project.businessPartnerName || '—'}
+          </div>
+        </div>
+        <span className="status-pill" style={{ background: tone.bg, color: tone.fg }}>
+          <span className="status-pill__dot" style={{ background: tone.fg }} />
+          {statusLabel(project.projectStatus)}
+        </span>
       </div>
+
       <div className="proj-header__kpis">
-        <div className="proj-kpi">
-          <span className="proj-kpi__label">Status</span>
-          <span className="proj-kpi__value proj-kpi__value--status">{statusLabel(project.projectStatus)}</span>
+        <div className="kpi-card">
+          <div className="kpi-card__icon"><Icon name="calendar" size={17} /></div>
+          <div className="kpi-card__body">
+            <span className="kpi-card__value">{fmtDate(project.startDate)}</span>
+            <span className="kpi-card__label">Start</span>
+          </div>
         </div>
-        <div className="proj-kpi">
-          <span className="proj-kpi__label">Start</span>
-          <span className="proj-kpi__value">{fmtDate(project.startDate)}</span>
+        <div className="kpi-card">
+          <div className="kpi-card__icon"><Icon name="flag" size={17} /></div>
+          <div className="kpi-card__body">
+            <span className="kpi-card__value">{fmtDate(project.dueDate)}</span>
+            <span className="kpi-card__label">Due</span>
+          </div>
         </div>
-        <div className="proj-kpi">
-          <span className="proj-kpi__label">Due</span>
-          <span className="proj-kpi__value">{fmtDate(project.dueDate)}</span>
+        <div className="kpi-card">
+          <div className="kpi-card__icon"><Icon name="wallet" size={17} /></div>
+          <div className="kpi-card__body">
+            <span className="kpi-card__value">{fmtMoneyCompact(budget)}</span>
+            <span className="kpi-card__label">Budget</span>
+          </div>
         </div>
-        <div className="proj-kpi">
-          <span className="proj-kpi__label">Progress</span>
-          <span className="proj-kpi__value">{pct}%</span>
-        </div>
-        <div className="proj-kpi">
-          <span className="proj-kpi__label">Stages</span>
-          <span className="proj-kpi__value">{done}/{project.stages.length}</span>
+        <div className="kpi-card">
+          <div className="kpi-card__icon kpi-card__icon--success"><Icon name="layers" size={17} /></div>
+          <div className="kpi-card__body">
+            <span className="kpi-card__value">{done}/{project.stages.length}</span>
+            <span className="kpi-card__label">Stages done</span>
+          </div>
         </div>
         {open > 0 && (
-          <div className="proj-kpi proj-kpi--warn">
-            <span className="proj-kpi__label">Issues</span>
-            <span className="proj-kpi__value">{open} open</span>
+          <div className="kpi-card">
+            <div className="kpi-card__icon kpi-card__icon--danger"><Icon name="alert" size={17} /></div>
+            <div className="kpi-card__body">
+              <span className="kpi-card__value">{open}</span>
+              <span className="kpi-card__label">Open issues</span>
+            </div>
           </div>
         )}
       </div>
+
       <div className="proj-header__bar">
         <div className="proj-header__bar-fill" style={{ width: pct + '%' }} />
       </div>
@@ -68,6 +103,7 @@ export default function App() {
   const { projects, loading: loadingProjects } = useProjects()
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [selectedStageId,   setSelectedStageId]   = useState<number | null>(null)
+  const [view, setView] = useState<View>('timeline')
   const [darkMode, setDarkMode] = useState(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches
   )
@@ -77,13 +113,14 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
+    // Keep the SAP Fiori components (ShellBar, buttons, select…) in step with our theme.
+    setTheme(darkMode ? 'sap_horizon_dark' : 'sap_horizon')
   }, [darkMode])
 
   const { project, loading: loadingProject, dirty, saving, saveError, clearSaveError, updateStage, deleteStage, addStage, save } =
     useProject(selectedProjectId)
 
   const hasFinishedStage = project?.stages.some(s => s.isFinished) ?? false
-
   const selectedStage = project?.stages.find(s => s.lineID === selectedStageId) ?? null
 
   const handleProjectChange = (id: number) => {
@@ -118,6 +155,7 @@ export default function App() {
     <div className="app">
       <ShellBar
         primaryTitle="B1 Project Gantt"
+        secondaryTitle="Project management for SAP Business One"
         logo={<img src="https://www.sap.com/content/dam/application/shared/logos/sap-logo-svg.svg" alt="SAP" height={32} />}
       />
 
@@ -137,16 +175,38 @@ export default function App() {
           selectedId={selectedProjectId}
           onChange={handleProjectChange}
         />
+
+        {project && (
+          <div className="seg" role="tablist" aria-label="View">
+            <button
+              role="tab" aria-selected={view === 'timeline'}
+              className={'seg__btn' + (view === 'timeline' ? ' seg__btn--active' : '')}
+              onClick={() => setView('timeline')}
+            >
+              <Icon name="timeline" size={14} /> Timeline
+            </button>
+            <button
+              role="tab" aria-selected={view === 'analytics'}
+              className={'seg__btn' + (view === 'analytics' ? ' seg__btn--active' : '')}
+              onClick={() => setView('analytics')}
+            >
+              <Icon name="analytics" size={14} /> Analytics
+            </button>
+          </div>
+        )}
+
         <div style={{ flex: 1 }} />
-        <Button icon="add" disabled={!project} onClick={addStage}>Add Stage</Button>
+        {view === 'timeline' && (
+          <Button icon="add" disabled={!project} onClick={addStage}>Add Stage</Button>
+        )}
         <Button icon="download" disabled={!project} onClick={exportCSV}>Export CSV</Button>
         <Button
-          icon={darkMode ? 'sap-icon://light-mode' : 'sap-icon://dark-mode'}
+          icon={darkMode ? 'light-mode' : 'dark-mode'}
           design="Transparent"
           title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           onClick={() => setDarkMode(d => !d)}
         >
-          {darkMode ? 'Light Mode' : 'Dark Mode'}
+          {darkMode ? 'Light' : 'Dark'}
         </Button>
       </div>
 
@@ -183,54 +243,57 @@ export default function App() {
         {!project && !loadingProject && (
           <div className="app__empty">
             <div className="app__empty-card">
-              <div className="app__empty-icon">📊</div>
+              <div className="app__empty-icon"><Icon name="analytics" size={30} /></div>
               <div className="app__empty-title">No project selected</div>
-              <div className="app__empty-hint">Choose a project from the toolbar above to view its Gantt chart.</div>
+              <div className="app__empty-hint">Choose a project from the toolbar above to view its Gantt timeline and budget analytics.</div>
             </div>
           </div>
         )}
 
         {loadingProject && (
-          <div className="app__empty">
-            <div className="app__empty-card">
-              <div className="app__empty-hint">Loading project…</div>
-            </div>
+          <div className="skeleton-wrap">
+            <div className="skel" style={{ height: 92 }} />
+            <div className="skel" style={{ flex: 1 }} />
           </div>
         )}
 
-        {project && (
+        {project && !loadingProject && (
           <>
-            {project.issues.some(i => !i.closed && !dismissedIssues.has(i.lineID)) && (
+            {view === 'timeline' && project.issues.some(i => !i.closed && !dismissedIssues.has(i.lineID)) && (
               <IssueList
                 issues={project.issues.filter(i => !dismissedIssues.has(i.lineID))}
                 onClose={handleDismissIssue}
               />
             )}
 
-            <div className="app__workspace">
-              <div className="app__gantt">
-                <GanttChart
-                  key={project.absEntry}
-                  stages={project.stages}
-                  issues={project.issues}
-                  selectedStageId={selectedStageId}
-                  onSelectStage={setSelectedStageId}
-                  onStageChange={updateStage}
-                />
-              </div>
-
-              {selectedStage && (
-                <div className="app__editor">
-                  <StageEditor
-                    stage={selectedStage}
+            {view === 'analytics' ? (
+              <AnalyticsView project={project} />
+            ) : (
+              <div className="app__workspace">
+                <div className="app__gantt">
+                  <GanttChart
+                    key={project.absEntry}
+                    stages={project.stages}
                     issues={project.issues}
-                    onChange={updateStage}
-                    onDelete={handleDeleteStage}
-                    onClose={() => setSelectedStageId(null)}
+                    selectedStageId={selectedStageId}
+                    onSelectStage={setSelectedStageId}
+                    onStageChange={updateStage}
                   />
                 </div>
-              )}
-            </div>
+
+                {selectedStage && (
+                  <div className="app__editor">
+                    <StageEditor
+                      stage={selectedStage}
+                      issues={project.issues}
+                      onChange={updateStage}
+                      onDelete={handleDeleteStage}
+                      onClose={() => setSelectedStageId(null)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
