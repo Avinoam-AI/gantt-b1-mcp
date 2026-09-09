@@ -73,6 +73,7 @@ export default function App() {
   )
   const [demoBannerDismissed,    setDemoBannerDismissed]    = useState(false)
   const [finishedNoticeDismissed, setFinishedNoticeDismissed] = useState(false)
+  const [dismissedIssues,         setDismissedIssues]         = useState<Set<number>>(new Set())
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
@@ -89,7 +90,11 @@ export default function App() {
     setSelectedProjectId(id)
     setSelectedStageId(null)
     setFinishedNoticeDismissed(false)
+    setDismissedIssues(new Set())
   }
+
+  const handleDismissIssue = (lineID: number) =>
+    setDismissedIssues(prev => new Set([...prev, lineID]))
 
   const handleDeleteStage = (lineID: number) => {
     deleteStage(lineID)
@@ -195,8 +200,11 @@ export default function App() {
 
         {project && (
           <>
-            {project.issues.some(i => !i.closed) && (
-              <IssueList issues={project.issues} />
+            {project.issues.some(i => !i.closed && !dismissedIssues.has(i.lineID)) && (
+              <IssueList
+                issues={project.issues.filter(i => !dismissedIssues.has(i.lineID))}
+                onClose={handleDismissIssue}
+              />
             )}
 
             <div className="app__workspace">

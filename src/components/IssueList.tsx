@@ -3,9 +3,10 @@ import type { B1Issue } from '../types/b1'
 
 interface Props {
   issues: B1Issue[]
+  onClose: (lineID: number) => void
 }
 
-export function IssueList({ issues }: Props) {
+export function IssueList({ issues, onClose }: Props) {
   const open = issues.filter(i => !i.closed)
   if (open.length === 0) return null
 
@@ -15,7 +16,7 @@ export function IssueList({ issues }: Props) {
         <MessageStrip
           key={i.lineID}
           design={i.priority === 1 ? 'Negative' : i.priority === 2 ? 'Critical' : 'Information'}
-          hideCloseButton
+          onClose={() => onClose(i.lineID)}
           style={{ marginBottom: '6px' }}
         >
           <strong>P{i.priority}</strong> · Stage {i.stageID}: {i.remarks}
