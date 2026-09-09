@@ -10,6 +10,7 @@ const DEMO_PROJECTS: B1ProjectSummary[] = [
   { absEntry: 1, projectName: 'ERP Implementation', businessPartnerName: 'Globex Corporation', startDate: '2025-01-06', dueDate: '2025-09-30', finishedPercent: 65, projectStatus: 'pst_Started' },
   { absEntry: 2, projectName: 'CRM Integration', businessPartnerName: 'Initech Ltd.', startDate: '2025-04-01', dueDate: '2025-10-31', finishedPercent: 30, projectStatus: 'pst_Started' },
   { absEntry: 3, projectName: 'Warehouse Automation', businessPartnerName: 'Umbrella Logistics', startDate: '2024-07-01', dueDate: '2025-03-31', finishedPercent: 100, projectStatus: 'pst_Finished' },
+  { absEntry: 4, projectName: 'S/4HANA Cloud Migration', businessPartnerName: 'Pinnacle Industries', startDate: '2025-03-01', dueDate: '2026-06-30', finishedPercent: 22, projectStatus: 'pst_Started' },
 ]
 
 const DEMO_FULL_PROJECTS: Record<number, B1Project> = {
@@ -51,6 +52,30 @@ const DEMO_FULL_PROJECTS: Record<number, B1Project> = {
       { lineID: 5, stageID: 5, description: 'Production Go-Live',      startDate: '2025-01-20', closeDate: '2025-03-31', percentualCompletness: 100, isFinished: true, dependsOnStage1: 4,    expectedCosts: 5000  },
     ],
     issues: [],
+  },
+  4: {
+    ...DEMO_PROJECTS[3],
+    stages: [
+      { lineID: 1,  stageID: 1,  description: 'Project Kick-off & Governance',   startDate: '2025-03-01', closeDate: '2025-03-28', percentualCompletness: 100, isFinished: true,  dependsOnStage1: null, expectedCosts: 12000  },
+      { lineID: 2,  stageID: 2,  description: 'As-Is Process Analysis',           startDate: '2025-03-31', closeDate: '2025-05-09', percentualCompletness: 100, isFinished: true,  dependsOnStage1: 1,    expectedCosts: 28000  },
+      { lineID: 3,  stageID: 3,  description: 'To-Be Design & Gap Assessment',    startDate: '2025-05-12', closeDate: '2025-07-04', percentualCompletness: 55,  isFinished: false, dependsOnStage1: 2,    expectedCosts: 35000  },
+      { lineID: 4,  stageID: 4,  description: 'Data Migration Strategy',          startDate: '2025-06-02', closeDate: '2025-08-01', percentualCompletness: 30,  isFinished: false, dependsOnStage1: 2,    expectedCosts: 22000  },
+      { lineID: 5,  stageID: 5,  description: 'System Build — Finance Module',    startDate: '2025-07-07', closeDate: '2025-09-26', percentualCompletness: 10,  isFinished: false, dependsOnStage1: 3,    expectedCosts: 55000  },
+      { lineID: 6,  stageID: 6,  description: 'System Build — Logistics Module',  startDate: '2025-07-07', closeDate: '2025-10-10', percentualCompletness: 5,   isFinished: false, dependsOnStage1: 3,    expectedCosts: 60000  },
+      { lineID: 7,  stageID: 7,  description: 'System Build — HR & Payroll',      startDate: '2025-08-04', closeDate: '2025-10-31', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 3,    expectedCosts: 45000  },
+      { lineID: 8,  stageID: 8,  description: 'Integration & Interface Testing',  startDate: '2025-10-13', closeDate: '2025-12-05', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 6,    expectedCosts: 30000  },
+      { lineID: 9,  stageID: 9,  description: 'User Acceptance Testing',          startDate: '2025-12-08', closeDate: '2026-02-06', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 8,    expectedCosts: 18000  },
+      { lineID: 10, stageID: 10, description: 'Data Migration Execution',         startDate: '2026-01-05', closeDate: '2026-03-06', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 4,    expectedCosts: 25000  },
+      { lineID: 11, stageID: 11, description: 'Cutover & Go-Live',                startDate: '2026-03-09', closeDate: '2026-04-03', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 9,    expectedCosts: 15000  },
+      { lineID: 12, stageID: 12, description: 'Hypercare & Stabilisation',        startDate: '2026-04-06', closeDate: '2026-06-30', percentualCompletness: 0,   isFinished: false, dependsOnStage1: 11,   expectedCosts: 20000  },
+    ],
+    issues: [
+      { lineID: 1, stageID: 3, remarks: 'Custom pricing logic for intercompany transactions not covered by standard S/4 — needs ABAP extension', priority: 1, closed: false },
+      { lineID: 2, stageID: 4, remarks: 'Legacy data quality issues in customer master: ~4,000 duplicate BPs identified, cleanse before migration', priority: 1, closed: false },
+      { lineID: 3, stageID: 6, remarks: 'Third-party WMS integration spec still pending from vendor — blocks interface design', priority: 2, closed: false },
+      { lineID: 4, stageID: 5, remarks: 'Tax jurisdiction mapping for Brazil entities requires external consultant sign-off', priority: 2, closed: false },
+      { lineID: 5, stageID: 2, remarks: 'As-Is documentation for legacy payroll system obtained and approved', priority: 3, closed: true  },
+    ],
   },
 }
 
