@@ -71,6 +71,8 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(() =>
     window.matchMedia('(prefers-color-scheme: dark)').matches
   )
+  const [demoBannerDismissed,    setDemoBannerDismissed]    = useState(false)
+  const [finishedNoticeDismissed, setFinishedNoticeDismissed] = useState(false)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
@@ -86,6 +88,7 @@ export default function App() {
   const handleProjectChange = (id: number) => {
     setSelectedProjectId(id)
     setSelectedStageId(null)
+    setFinishedNoticeDismissed(false)
   }
 
   const handleDeleteStage = (lineID: number) => {
@@ -113,9 +116,10 @@ export default function App() {
         logo={<img src="https://www.sap.com/content/dam/application/shared/logos/sap-logo-svg.svg" alt="SAP" height={32} />}
       />
 
-      {DEMO_MODE && (
+      {DEMO_MODE && !demoBannerDismissed && (
         <div className="save-bar save-bar--info" style={{ justifyContent: 'center' }}>
           <span>Demo mode — sample data only. All edits are local to this session and not saved to SAP Business One.</span>
+          <Button icon="decline" design="Transparent" title="Dismiss" onClick={() => setDemoBannerDismissed(true)} />
         </div>
       )}
 
@@ -163,9 +167,10 @@ export default function App() {
       )}
 
       {/* B1 finished-stage lock notice */}
-      {project && hasFinishedStage && !saveError && (
+      {project && hasFinishedStage && !saveError && !finishedNoticeDismissed && (
         <div className="save-bar save-bar--info">
           <span>This project has a finished stage — SAP B1 locks the stage list, so edits here can be explored but not saved back.</span>
+          <Button icon="decline" design="Transparent" title="Dismiss" onClick={() => setFinishedNoticeDismissed(true)} />
         </div>
       )}
 
